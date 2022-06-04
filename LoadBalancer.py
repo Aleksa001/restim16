@@ -1,4 +1,4 @@
-from Podatak import Electricity
+
 import socket, json
 
 # lista u koju smestamo podatke tipa Podatak koje salje Writer komponenta
@@ -18,7 +18,10 @@ while True:
 
         data_variable = json.loads(data_string)
         # data_variable is a dict representing your sent object
-        print(data_variable)
+        #print(data_variable)
+
+        #Primljene podatke smestamo u buffer
+        buffer.append(data_variable)
     except:
         #print(ConnectionAbortedError)
         break
