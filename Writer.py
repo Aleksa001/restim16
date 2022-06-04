@@ -1,4 +1,5 @@
-from Scripts.Podatak import Podatak
+from Podatak import Podatak
+
 def loadFromFile(fileName):
     file = open(fileName)
     filePodaci = []  # niz vrednosti iz fajla
@@ -7,8 +8,8 @@ def loadFromFile(fileName):
         filePodaci.append(line.strip())
     podaci = []
     for x in range(len(filePodaci)):
-        if (x % 2 == 0):
-            podaci.append(Podatak(filePodaci[x], filePodaci[x + 1]))
+        if (x % 3 == 0):
+            podaci.append(Podatak(filePodaci[x], filePodaci[x + 1], filePodaci[x+2]))
 
     for pod in podaci:
         print(f"Id brojila: {pod.id} \nVrednost brojila: {pod.vrednostBrojila}\n")
