@@ -1,5 +1,9 @@
-class Podatak:
-    def __init__(self, id, vrednostBrojila,mesec):
-        self.id=id;
-        self.vrednostBrojila=vrednostBrojila;
-        self.mesec=mesec;
+class Electricity:
+    def __init__(self, personal_id, monthly_value, month):
+        self.personal_id = personal_id
+        self.monthly_value = monthly_value
+        self.month = month
+
+    def __str__(self):
+        return str(self.__class__) + '\n' + '\n'.join(
+            (str(item) + ' = ' + str(self.__dict__[item]) for item in self.__dict__))

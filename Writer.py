@@ -1,15 +1,9 @@
-from Podatak import Podatak
+from Podatak import Electricity
 
-def loadFromFile(fileName):
-    file = open(fileName)
-    filePodaci = []  # niz vrednosti iz fajla
-    for line in file.readlines():
-        print(line.strip() + "!")
-        filePodaci.append(line.strip())
-    podaci = []
-    for x in range(len(filePodaci)):
-        if (x % 3 == 0):
-            podaci.append(Podatak(filePodaci[x], filePodaci[x + 1], filePodaci[x+2]))
+with open('StrujaFile.txt') as f:
+    contents = f.readlines()
+    for j in contents:
+        if (j % 3 ==0):
+            one = Electricity(personal_id=contents[j-2], monthly_value=contents[j-1], month=contents[j])
+            print(one)
 
-    for pod in podaci:
-        print(f"Id brojila: {pod.id} \nVrednost brojila: {pod.vrednostBrojila}\n")
