@@ -1,6 +1,6 @@
-1,
-1000,
-January,
-2,
-2000,
-January,
+1
+1000
+January
+2
+2000
+January
