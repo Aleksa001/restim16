@@ -8,28 +8,21 @@ buffer.clear()
 # parametri za slanje podataka
 HOST = 'localhost'
 PORT2 = 50008
-# Create a socket connection.
 s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 # fja za slanje podataka na Worker
 def sendtoWorker():
-    # ovde nekgde greska ne znam koja
-    # Serialize your dict object
     s2.connect((HOST, PORT2))
     data_string2 = json.dumps(buffer)
-
-    # Send this encoded object
     s2.send(data_string2.encode(encoding="utf-8"))
     time.sleep(1)
     print('Data Sent to Server')
 
     s2.close()
-    print("Zavrsio fju")
 
 
 # parametri za prijem podataka
-
 PORT = 50007
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
@@ -43,23 +36,16 @@ while True:
     try:
         data_encoded = conn.recv(4096)
         data_string = data_encoded.decode(encoding="utf-8")
-
         data_variable = json.loads(data_string)
-        # data_variable is a dict representing your sent object
-        # print(data_variable)
-
         # Primljene podatke smestamo u buffer
-        print(data_variable)
         buffer.append(data_variable)
         print('Data received from client')
-        print(len(buffer))
         # Uslov poziva fje za slanje na Worker
         if len(buffer) == 10:
             sendtoWorker()
 
 
     except:
-        # print(ConnectionAbortedError)
         break
 
 conn.close()

@@ -1,5 +1,6 @@
-import socket, json
+import socket, json, pickle
 from Podatak import Electricity
+bufferworker=list()
 
 HOST = 'localhost'
 PORT = 50008
@@ -13,8 +14,9 @@ while True:
     try:
         data_encoded = conn.recv(4096)
         data_string = data_encoded.decode(encoding="utf-8")
-        data_variable = json.loads(data_string)
-        print(data_variable)
+        bufferworker = json.loads(data_string)
+        for i in bufferworker:
+            print(i)
     except:
         break
 
