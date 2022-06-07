@@ -13,23 +13,27 @@ mycur = db.cursor()
 
 def insertInDatabase(id, value, month):
     try:
-        mycur.execute("INSERT INTO Potrosnjabrojila (IDBrojila, Potrosnja, Mesec) VALUES (%d, %f, '%s')" %(id,value,month))
+        mycur.execute(
+            "INSERT INTO Potrosnjabrojila (IDBrojila, Potrosnja, Mesec) VALUES (%d, %f, '%s')" % (id, value, month))
         db.commit()
     except:
         print("Error in operation!!!")
         db.rollback()
 
-def deletefromDatabase(id):
+
+def deleteFromDatabase(id):
     try:
-        mycur.execute("DELETE from Potrosnjabrojila where IDBrojila=%d" %(id))
+        mycur.execute("DELETE from Potrosnjabrojila where IDBrojila=%d" % (id))
         db.commit()
     except:
         print("Error in operation!!!")
         db.rollback()
 
-def updateInDatabase(id,value,month):
+
+def updateInDatabase(id, value, month):
     try:
-        mycur.execute("Update Potrosnjabrojila set Potrosnja= %f where IDBrojila= %d && Mesec='%s'" %(value,id,month))
+        mycur.execute(
+            "Update Potrosnjabrojila set Potrosnja= %f where IDBrojila= %d && Mesec='%s'" % (value, id, month))
         db.commit()
     except:
         print("Error in operation!!!")
@@ -39,10 +43,7 @@ def updateInDatabase(id,value,month):
 def readAllInDatabase():
     mycur.execute("SELECT * FROM Potrosnjabrojila")
     while True:
-        item=mycur.fetchone()
-        if item==None:
+        item = mycur.fetchone()
+        if item is None:
             break
         print(item)
-
-
-
