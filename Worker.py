@@ -2,6 +2,10 @@ import json
 import random
 import socket
 import threading
+import time
+
+HOST = 'localhost'
+PORT2 = 50009
 
 
 class ClientThread(threading.Thread):
@@ -16,9 +20,16 @@ class ClientThread(threading.Thread):
             data_encoded = conn.recv(4096)
             data_string = data_encoded.decode(encoding="utf-8")
             bufferworker = json.loads(data_string)
-            for i in bufferworker:
-                print("from client", i["personal_id"], i["monthly_value"], i["month"])
-        print("Client at ", addr, " disconnected...")
+
+            s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            s2.connect((HOST, PORT2))
+            data_string2 = json.dumps(bufferworker)
+            s2.send(data_string2.encode(encoding="utf-8"))
+            time.sleep(1)
+            print('Data Sent to Server')
+
+            s2.close()
 
 
 bufferworker = list()
