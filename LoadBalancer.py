@@ -9,17 +9,17 @@ buffer.clear()
 HOST = 'localhost'
 PORT2 = 50008
 s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+s2.connect((HOST, PORT2))
 
 # fja za slanje podataka na Worker
 def sendtoWorker():
-    s2.connect((HOST, PORT2))
+    print("uso u slanje workeru")
     data_string2 = json.dumps(buffer)
     s2.send(data_string2.encode(encoding="utf-8"))
     time.sleep(1)
     print('Data Sent to Server')
 
-    s2.close()
+
 
 
 # parametri za prijem podataka
@@ -40,12 +40,17 @@ while True:
         # Primljene podatke smestamo u buffer
         buffer.append(data_variable)
         print('Data received from client')
+        print(len(buffer))
         # Uslov poziva fje za slanje na Worker
         if len(buffer) == 10:
+            print("uso u while")
             sendtoWorker()
 
 
     except:
         break
 
+#za manuelni upis podatak
+
+s2.close()
 conn.close()

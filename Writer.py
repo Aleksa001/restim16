@@ -16,7 +16,7 @@ with open('StrujaFile.txt') as f:
         if i >= count:
             break
         try:
-            variable = Electricity(personal_id=contents[i], monthly_value=contents[i + 1], month=contents[i + 2])
+            variable = Electricity(contents[i], contents[i + 1],contents[i + 2])
             # Map your object into dict
             data_as_dict = vars(variable)
 
@@ -32,6 +32,27 @@ with open('StrujaFile.txt') as f:
             break
 
         i = i+3
+
+
+
+#manuelni upis podataka
+while True:
+    print("Manuelni unos podataka")
+    print("Da li zelite da unesete podatke?(unesite da ili ne)")
+    request=input()
+    if request=='da':
+        id=input("ID brojila: ")
+        value=input("Potrosnja: ")
+        month=input("Mesec: ")
+    elif request=='ne' :
+        break
+    variable = Electricity(id, value, month)
+    data_as_dict = vars(variable)
+    data_string = json.dumps(data_as_dict)
+    s.send(data_string.encode(encoding="utf-8"))
+    time.sleep(1)
+    print('Data sent from manual input')
+
 
 
 s.close()
