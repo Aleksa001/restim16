@@ -1,4 +1,5 @@
 import mysql.connector
+import socket, json
 
 # DataBase CRUD ce koristiti ovu funkciju za manipulisanje bazom
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
@@ -47,3 +48,30 @@ def readAllInDatabase():
         if item is None:
             break
         print(item)
+
+
+# parametri za prijem podataka
+HOST = 'localhost'
+PORT = 50009
+bufferCRUD = list()
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((HOST, PORT))
+s.listen(1)
+print('DataBaseCRUD started')
+print('Waiting for connection...')
+conn, addr = s.accept()
+
+print('Connected by', addr)
+while True:
+    try:
+        data_encoded = conn.recv(4096)
+        data_string = data_encoded.decode(encoding="utf-8")
+        bufferCRUD = json.loads(data_string)
+        print('Data received from client')
+        for i in bufferCRUD:
+            print("from client", i["personal_id"], i["monthly_value"], i["month"])
+
+    except:
+        break
+
+conn.close()
