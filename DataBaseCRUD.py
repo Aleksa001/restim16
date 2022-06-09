@@ -61,6 +61,18 @@ def consumptionForCity(city):
             break
         print(item)
 
+#Drugi zahtev, potrosnja po mesecima za konkretno brojilo
+def consumptionForBrojilo(id):
+    mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS Potrosnja" +
+                  " from  Brojilo inner join Potrosnjabrojila " +
+                  "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila" +
+                  " where Brojilo.IDBrojila=%d "%(id) +
+                  "group by Potrosnjabrojila.Mesec ;")
+    while True:
+        item = mycur.fetchone()
+        if item is None:
+            break
+        print(item)
 
 # parametri za prijem podataka
 
