@@ -1,13 +1,13 @@
 import mysql.connector
 import socket, json
-
+#Ale.01Sto
 # DataBase CRUD ce koristiti ovu funkciju za manipulisanje bazom
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
 db = mysql.connector.connect(
     host="localhost",
-    user="Luka",
-    password="5628460460Aa",
-    database="Projekat"
+    user="Aleksa",
+    password="Ale.01Sto",
+    database="projekat"
 )
 mycur = db.cursor()
 
@@ -50,6 +50,7 @@ def readAllInDatabase():
         print(item)
 #Prvi zahtev izvestaja, potrosnja po mesecima za grad
 def consumptionForCity(city):
+    bufferAnalitics=list()
     mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS ProsecnaPotrosnja " +
                   "from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila " +
@@ -59,10 +60,13 @@ def consumptionForCity(city):
         item = mycur.fetchone()
         if item is None:
             break
-        print(item)
+        bufferAnalitics.append(item)
+
+    return bufferAnalitics
 
 #Drugi zahtev, potrosnja po mesecima za konkretno brojilo
 def consumptionForBrojilo(id):
+    bufferAnalitics = list()
     mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS Potrosnja" +
                   " from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila" +
@@ -72,7 +76,9 @@ def consumptionForBrojilo(id):
         item = mycur.fetchone()
         if item is None:
             break
-        print(item)
+        bufferAnalitics.append(item)
+
+    return bufferAnalitics
 
 # parametri za prijem podataka
 
@@ -104,5 +110,17 @@ while True:
 
 conn.close()
 
+PORT2=50010
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((HOST, PORT2))
+s.listen(1)
+conn, addr = s.accept()
+try:
+    data = conn.recv(1024)
+    print('Data received from client')
+    print(int(data))
 
+except:
+    print("Greska")
 
+conn.close()
