@@ -48,9 +48,22 @@ def readAllInDatabase():
         if item is None:
             break
         print(item)
+#Prvi zahtev izvestaja, potrosnja po mesecima za grad
+def consumptionForCity(city):
+    mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS ProsecnaPotrosnja " +
+                  "from  Brojilo inner join Potrosnjabrojila " +
+                  "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila " +
+                  "where Brojilo.Grad='%s' "%(city) +
+                  "group by Potrosnjabrojila.Mesec ;")
+    while True:
+        item = mycur.fetchone()
+        if item is None:
+            break
+        print(item)
 
 
 # parametri za prijem podataka
+
 HOST = 'localhost'
 PORT = 50009
 bufferCRUD = list()
@@ -69,9 +82,15 @@ while True:
         bufferCRUD = json.loads(data_string)
         print('Data received from client')
         for i in bufferCRUD:
-            print("from client", i["personal_id"], i["monthly_value"], i["month"])
+            #print("from client", i["personal_id"], i["monthly_value"], i["month"])
+            id=int(i["personal_id"])
+            value=float(i["monthly_value"])
+            insertInDatabase(id, value,"%s" %(i["month"]))
 
     except:
         break
 
 conn.close()
+
+
+

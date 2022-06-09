@@ -13,7 +13,6 @@ s2.connect((HOST, PORT2))
 
 # fja za slanje podataka na Worker
 def sendtoWorker():
-    print("uso u slanje workeru")
     data_string2 = json.dumps(buffer)
     s2.send(data_string2.encode(encoding="utf-8"))
     time.sleep(1)
@@ -43,7 +42,6 @@ while True:
         print(len(buffer))
         # Uslov poziva fje za slanje na Worker
         if len(buffer) == 10:
-            print("uso u while")
             sendtoWorker()
 
 
