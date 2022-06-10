@@ -5,8 +5,8 @@ import socket, json
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
 db = mysql.connector.connect(
     host="localhost",
-    user="Aleksa",
-    password="Ale.01Sto",
+    user="Luka",
+    password="5628460460Aa",
     database="Projekat"
 )
 mycur = db.cursor()

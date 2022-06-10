@@ -13,10 +13,13 @@ s2.connect((HOST, PORT2))
 
 # fja za slanje podataka na Worker
 def sendtoWorker():
-    data_string2 = json.dumps(buffer)
-    s2.send(data_string2.encode(encoding="utf-8"))
-    time.sleep(1)
-    print('Data Sent to Server')
+    try:
+        data_string2 = json.dumps(buffer)
+        s2.send(data_string2.encode(encoding="utf-8"))
+        time.sleep(1)
+        print('Data Sent to Server')
+    except:
+        print("Error LoadBalancer")
 
 
 
@@ -26,6 +29,8 @@ PORT = 50007
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen(1)
+print('LoadBalancer server started:')
+print('Waiting for connection...')
 conn, addr = s.accept()
 
 print('Connected by', addr)
