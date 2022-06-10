@@ -1,6 +1,13 @@
 import mysql.connector
 import socket, json
+import time
+from Podatak import Option
 #Ale.01Sto
+#klasa za opciju
+
+
+
+
 # DataBase CRUD ce koristiti ovu funkciju za manipulisanje bazom
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
 db = mysql.connector.connect(
@@ -67,7 +74,7 @@ def consumptionForCity(city):
 #Drugi zahtev, potrosnja po mesecima za konkretno brojilo
 def consumptionForBrojilo(id):
     bufferAnalitics = list()
-    mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS Potrosnja" +
+    mycur.execute("select Potrosnjabrojila.Mesec, Potrosnjabrojila.Potrosnja AS Potrosnja" +
                   " from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila" +
                   " where Brojilo.IDBrojila=%d "%(id) +
@@ -108,19 +115,54 @@ while True:
     except:
         break
 
+
 conn.close()
+#parametri za slanje
+PORT3=50012
+s3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s3.connect((HOST, PORT3))
 
-PORT2=50010
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT2))
-s.listen(1)
-conn, addr = s.accept()
-try:
-    data = conn.recv(1024)
-    print('Data received from client')
-    print(int(data))
 
-except:
-    print("Greska")
+def Analitics(option, parametar):
+    if option == 1:
+        result = consumptionForCity(parametar)
+        try:
+            data_string2 = json.dumps(result)
+            s3.send(data_string2.encode(encoding="utf-8"))
+            time.sleep(1)
+            print('Data Sent to Server')
+        except:
+            print("Error LoadBalancer")
+    else :
+        result2 = consumptionForBrojilo(int(parametar))
+        try:
+            data_string2 = json.dumps(result2)
+            s3.send(data_string2.encode(encoding="utf-8"))
+            time.sleep(1)
+            print('Data Sent to Server')
+        except:
+            print("Error LoadBalancer")
+
+
+#prijem podataka od Datbase Analitics
+PORT2 = 50011
+s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s2.bind((HOST, PORT2))
+s2.listen(1)
+conn, addr = s2.accept()
+
+while True:
+    try:
+        data_encoded = conn.recv(4096)
+        data_string = data_encoded.decode(encoding="utf-8")
+        data_variable = json.loads(data_string)
+        print('Data received from client')
+        print(data_variable)
+        Analitics(int(data_variable["opt"]),data_variable["parametar"])
+
+    except:
+        print("Greska")
+        break
+
 
 conn.close()

@@ -39,7 +39,7 @@ while True:
     data_encoded = conn.recv(4096)
     data_string = data_encoded.decode(encoding="utf-8")
     bufferworker = json.loads(data_string)
-    threads[counter] = threading.Thread(target=ClientThread(bufferworker))
+    threads[counter] = threading.Thread(target=ClientThread,args=(bufferworker,))
     counter = counter + 1
     if counter > len(threads) - 1:
         counter = 0
