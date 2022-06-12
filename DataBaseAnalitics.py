@@ -5,21 +5,11 @@ from Podatak import Option
 
 
 HOST = 'localhost'
-#prijem podataka
-PORT2 = 50012
-s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s2.bind((HOST, PORT2))
-print("Server started")
-print("Waiting for client request..")
-s2.listen(1)
-conn, addr = s2.accept()
-#slanje
 PORT = 50011
 # Create a socket connection.
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-buffer=list()
+buffer = list()
 while True:
     print("Izaberite izvestaj:")
     print("1.Potrosnja po mesecima za odredjeni grad")
@@ -35,9 +25,12 @@ while True:
             time.sleep(1)
             print('Data Sent to Server')
             #ovde prima podatke
-            data_encoded = conn.recv(4096)
+            time.sleep(1)
+            data_encoded = s.recv(4096)
             data_string = data_encoded.decode(encoding="utf-8")
             bufferdba = json.loads(data_string)
+            print("Prosecna potrosnja za grad %s po mesecima:"%(city))
+            print("(Ukoliko grad ne postoji bice ispisani gradovi koji postoje)")
             for i in bufferdba:
                 print(i)
         except:
@@ -47,15 +40,20 @@ while True:
     elif int(option) == 2 :
         brojilo = input("Unesite id brojila: ")
         try:
+            #slanje
             variable = Option(option, brojilo)
             data_as_dict = vars(variable)
             data_string = json.dumps(data_as_dict)
             s.send(data_string.encode(encoding="utf-8"))
             time.sleep(1)
             print('Data Sent to Server')
-            data_encoded = conn.recv(4096)
+            #prijem
+            time.sleep(1)
+            data_encoded = s.recv(4096)
             data_string = data_encoded.decode(encoding="utf-8")
             bufferdba = json.loads(data_string)
+            print("Prosecna potrosnja za brojilo %d po mesecima:"%(brojilo))
+            print("(Ukoliko id brojila ne postoji bice ispisan id brojila koja postoje)")
             for i in bufferdba:
                 print(i)
         except:

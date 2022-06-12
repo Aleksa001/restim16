@@ -62,7 +62,7 @@ def consumptionForCity(city):
                   "from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila " +
                   "where Brojilo.Grad='%s' "%(city) +
-                  "group by Potrosnjabrojila.Mesec ;")
+                  "group by Potrosnjabrojila.Mesec;")
     while True:
         item = mycur.fetchone()
         if item is None:
@@ -74,11 +74,13 @@ def consumptionForCity(city):
 #Drugi zahtev, potrosnja po mesecima za konkretno brojilo
 def consumptionForBrojilo(id):
     bufferAnalitics = list()
+
     mycur.execute("select Potrosnjabrojila.Mesec, Potrosnjabrojila.Potrosnja AS Potrosnja" +
                   " from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila" +
                   " where Brojilo.IDBrojila=%d "%(id) +
-                  "group by Potrosnjabrojila.Mesec ;")
+                  "group by Potrosnjabrojila.Mesec;")
+
     while True:
         item = mycur.fetchone()
         if item is None:
@@ -86,6 +88,30 @@ def consumptionForBrojilo(id):
         bufferAnalitics.append(item)
 
     return bufferAnalitics
+
+def currentCities():
+    buffer=list()
+    mycur.execute("select Grad from Brojilo "
+                      "group by Grad;")
+
+    while True:
+        item = mycur.fetchone()
+        if item is None:
+            break
+        buffer.append(item)
+    return buffer
+
+def currentIds():
+    buffer=list()
+    mycur.execute("select IDBrojila from Brojilo "
+                      "group by IDBrojila;")
+
+    while True:
+        item = mycur.fetchone()
+        if item is None:
+            break
+        buffer.append(item)
+    return buffer
 
 # parametri za prijem podataka
 
@@ -107,7 +133,6 @@ while True:
         bufferCRUD = json.loads(data_string)
         print('Data received from client')
         for i in bufferCRUD:
-            #print("from client", i["personal_id"], i["monthly_value"], i["month"])
             id=int(i["personal_id"])
             value=float(i["monthly_value"])
             insertInDatabase(id, value,"%s" %(i["month"]))
@@ -117,32 +142,22 @@ while True:
 
 
 conn.close()
-#parametri za slanje
-PORT3=50012
-s3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s3.connect((HOST, PORT3))
 
 
+
+#parametri za slanje za DataBAse Analitics
 def Analitics(option, parametar):
+    result = list()
     if option == 1:
         result = consumptionForCity(parametar)
-        try:
-            data_string2 = json.dumps(result)
-            s3.send(data_string2.encode(encoding="utf-8"))
-            time.sleep(1)
-            print('Data Sent to Server')
-        except:
-            print("Error LoadBalancer")
-    else :
-        result2 = consumptionForBrojilo(int(parametar))
-        try:
-            data_string2 = json.dumps(result2)
-            s3.send(data_string2.encode(encoding="utf-8"))
-            time.sleep(1)
-            print('Data Sent to Server')
-        except:
-            print("Error LoadBalancer")
-
+        return result
+    elif option == 2 :
+        result = consumptionForBrojilo(int(parametar))
+        for i in result:
+            print(i)
+        return result
+    else:
+        return result
 
 #prijem podataka od Datbase Analitics
 PORT2 = 50011
@@ -153,13 +168,18 @@ conn, addr = s2.accept()
 
 while True:
     try:
+        #prima
         data_encoded = conn.recv(4096)
         data_string = data_encoded.decode(encoding="utf-8")
         data_variable = json.loads(data_string)
         print('Data received from client')
         print(data_variable)
-        Analitics(int(data_variable["opt"]),data_variable["parametar"])
-
+        result = Analitics(int(data_variable["opt"]),data_variable["parametar"])
+        #slanje
+        data_string2 = json.dumps(result)
+        conn.send(data_string2.encode(encoding="utf-8"))
+        time.sleep(1)
+        print('Data Sent to Server')
     except:
         print("Greska")
         break
