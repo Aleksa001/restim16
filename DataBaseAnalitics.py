@@ -14,7 +14,8 @@ while True:
     print("Izaberite izvestaj:")
     print("1.Potrosnja po mesecima za odredjeni grad")
     print("2.Potrosnja po mesecima za konkretno brojilo")
-    option=input("Unesite opciju 1 ili 2: ")
+    print("3.Exit")
+    option=input("Unesite opciju: ")
     if int(option) == 1 :
         city = input("Unesite ime grada: ")
         try:
@@ -29,13 +30,14 @@ while True:
             data_encoded = s.recv(4096)
             data_string = data_encoded.decode(encoding="utf-8")
             bufferdba = json.loads(data_string)
-            print("Prosecna potrosnja za grad %s po mesecima:"%(city))
-            print("(Ukoliko grad ne postoji bice ispisani gradovi koji postoje)")
-            for i in bufferdba:
-                print(i)
+
         except:
             break
-        #prijem
+        print("Prosecna potrosnja za grad %s po mesecima:" % (city))
+        print("(Ukoliko grad ne postoji bice ispisani gradovi koji postoje u bazi!!!)")
+        for i in bufferdba:
+            print(i)
+
 
     elif int(option) == 2 :
         brojilo = input("Unesite id brojila: ")
@@ -48,18 +50,18 @@ while True:
             time.sleep(1)
             print('Data Sent to Server')
             #prijem
-            time.sleep(1)
+            time.sleep(3)
             data_encoded = s.recv(4096)
             data_string = data_encoded.decode(encoding="utf-8")
             bufferdba = json.loads(data_string)
-            print("Prosecna potrosnja za brojilo %d po mesecima:"%(brojilo))
-            print("(Ukoliko id brojila ne postoji bice ispisan id brojila koja postoje)")
-            for i in bufferdba:
-                print(i)
         except:
             break
+        print("Prosecna potrosnja za brojilo %d po mesecima:"%(int(brojilo)))
+        print("(Ukoliko id brojila ne postoji bice ispisan id brojila koja postoje u bazi!!!)")
+        for i in bufferdba:
+            print(i)
     else:
-        print("Uneta opcija ne postoji!!!")
+        break
 
 s.close()
 

@@ -153,10 +153,6 @@ def Analitics(option, parametar):
         return result
     elif option == 2 :
         result = consumptionForBrojilo(int(parametar))
-        for i in result:
-            print(i)
-        return result
-    else:
         return result
 
 #prijem podataka od Datbase Analitics
@@ -176,10 +172,24 @@ while True:
         print(data_variable)
         result = Analitics(int(data_variable["opt"]),data_variable["parametar"])
         #slanje
-        data_string2 = json.dumps(result)
-        conn.send(data_string2.encode(encoding="utf-8"))
-        time.sleep(1)
-        print('Data Sent to Server')
+        if len(result) == 0:
+            if int(data_variable["opt"])==1:
+                result=currentCities()
+                data_string2 = json.dumps(result)
+                conn.sendall(data_string2.encode(encoding="utf-8"))
+                time.sleep(1)
+                print('Data Sent to Server')
+            else:
+                result=currentIds()
+                data_string2 = json.dumps(result)
+                conn.sendall(data_string2.encode(encoding="utf-8"))
+                time.sleep(1)
+                print('Data Sent to Server')
+        else:
+            data_string2 = json.dumps(result)
+            conn.sendall(data_string2.encode(encoding="utf-8"))
+            time.sleep(1)
+            print('Data Sent to Server')
     except:
         print("Greska")
         break
