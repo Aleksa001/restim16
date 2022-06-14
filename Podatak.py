@@ -8,6 +8,7 @@ class Electricity:
         return str(self.__class__) + '\n' + '\n'.join(
             (str(item) + ' = ' + str(self.__dict__[item]) for item in self.__dict__))
 
+
 class Option:
     def __init__(self, opt, parametar):
         self.opt = opt

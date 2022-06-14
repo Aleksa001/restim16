@@ -13,8 +13,8 @@ from Podatak import Option
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
 db = mysql.connector.connect(
     host="localhost",
-    user="Luka",
-    password="5628460460Aa",
+    user="Aleksa",
+    password="Ale.01Sto",
     database="projekat"
 )
 mycur = db.cursor()
@@ -165,6 +165,8 @@ while True:
         newthread = ClientThread(clientAddress, clientsock)
         newthread.start()
         print(threading.active_count())
+        if(threading.active_count() == 9) or (threading.active_count() == 10):
+            break
     except:
         break
 server.close()
@@ -182,12 +184,12 @@ def Analitics(option, parametar):
 
 
 # prijem podataka od Datbase Analitics
-PORT2 = 50011
+PORT2 = 50023
 s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s2.bind((LOCALHOST, PORT2))
 s2.listen(1)
 conn, addr = s2.accept()
-
+print("Wait connection with Database Analitics...")
 while True:
     try:
         # prima

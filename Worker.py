@@ -47,3 +47,6 @@ while True:
     print(threading.current_thread().name)
     print(threading.active_count())
 s2.close()
+
+
+
