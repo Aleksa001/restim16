@@ -1,19 +1,20 @@
+import threading
+
 import mysql.connector
 import socket, json
 import time
 from Podatak import Option
-#Ale.01Sto
-#klasa za opciju
 
-
+# Ale.01Sto
+# klasa za opciju
 
 
 # DataBase CRUD ce koristiti ovu funkciju za manipulisanje bazom
 # F-ja vraca objekat mycur preko kog se izvrsavaju upiti za bazu podataka pomocu metode mycur.execute("Upit")
 db = mysql.connector.connect(
     host="localhost",
-    user="Aleksa",
-    password="Ale.01Sto",
+    user="Luka",
+    password="5628460460Aa",
     database="projekat"
 )
 mycur = db.cursor()
@@ -55,13 +56,15 @@ def readAllInDatabase():
         if item is None:
             break
         print(item)
-#Prvi zahtev izvestaja, potrosnja po mesecima za grad
+
+
+# Prvi zahtev izvestaja, potrosnja po mesecima za grad
 def consumptionForCity(city):
-    bufferAnalitics=list()
+    bufferAnalitics = list()
     mycur.execute("select Potrosnjabrojila.Mesec, avg(Potrosnjabrojila.Potrosnja) AS ProsecnaPotrosnja " +
                   "from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila " +
-                  "where Brojilo.Grad='%s' "%(city) +
+                  "where Brojilo.Grad='%s' " % (city) +
                   "group by Potrosnjabrojila.Mesec;")
     while True:
         item = mycur.fetchone()
@@ -71,14 +74,15 @@ def consumptionForCity(city):
 
     return bufferAnalitics
 
-#Drugi zahtev, potrosnja po mesecima za konkretno brojilo
+
+# Drugi zahtev, potrosnja po mesecima za konkretno brojilo
 def consumptionForBrojilo(id):
     bufferAnalitics = list()
 
     mycur.execute("select Potrosnjabrojila.Mesec, Potrosnjabrojila.Potrosnja AS Potrosnja" +
                   " from  Brojilo inner join Potrosnjabrojila " +
                   "on Brojilo.IDBrojila=Potrosnjabrojila.IDBrojila" +
-                  " where Brojilo.IDBrojila=%d "%(id) +
+                  " where Brojilo.IDBrojila=%d " % (id) +
                   "group by Potrosnjabrojila.Mesec;")
 
     while True:
@@ -89,10 +93,11 @@ def consumptionForBrojilo(id):
 
     return bufferAnalitics
 
+
 def currentCities():
-    buffer=list()
+    buffer = list()
     mycur.execute("select Grad from Brojilo "
-                      "group by Grad;")
+                  "group by Grad;")
 
     while True:
         item = mycur.fetchone()
@@ -100,11 +105,12 @@ def currentCities():
             break
         buffer.append(item)
     return buffer
+
 
 def currentIds():
-    buffer=list()
+    buffer = list()
     mycur.execute("select IDBrojila from Brojilo "
-                      "group by IDBrojila;")
+                  "group by IDBrojila;")
 
     while True:
         item = mycur.fetchone()
@@ -112,75 +118,95 @@ def currentIds():
             break
         buffer.append(item)
     return buffer
+
 
 # parametri za prijem podataka
 
-HOST = 'localhost'
-PORT = 50009
-bufferCRUD = list()
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT))
-s.listen(1)
-print('DataBaseCRUD started')
-print('Waiting for connection...')
-conn, addr = s.accept()
+class ClientThread(threading.Thread):
+    def __init__(self, clientAddress, clientsocket):
+        threading.Thread.__init__(self)
+        self.csocket = clientsocket
+        print("New connection added: ", clientAddress)
 
-print('Connected by', addr)
+    def run(self):
+        print("Connection from : ", clientAddress)
+        # self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
+        msg = ''
+        while True:
+            try:
+                data_encoded = self.csocket.recv(4096)
+                data_string = data_encoded.decode(encoding="utf-8")
+                bufferCRUD = json.loads(data_string)
+                print('Data received from client')
+
+            except:
+                break
+            for i in bufferCRUD:
+                # print("from client", i["personal_id"], i["monthly_value"], i["month"])
+                id = int(i["personal_id"])
+                value = float(i["monthly_value"])
+                insertInDatabase(id, value, "%s" % (i["month"]))
+        clientsock.close()
+
+        print("Client at ", clientAddress, " disconnected...")
+
+
+LOCALHOST = "127.0.0.1"
+PORT = 50009
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind((LOCALHOST, PORT))
+print("Server started")
+print("Waiting for client request..")
 while True:
     try:
-        data_encoded = conn.recv(4096)
-        data_string = data_encoded.decode(encoding="utf-8")
-        bufferCRUD = json.loads(data_string)
-        print('Data received from client')
-        for i in bufferCRUD:
-            id=int(i["personal_id"])
-            value=float(i["monthly_value"])
-            insertInDatabase(id, value,"%s" %(i["month"]))
-
+        server.listen(1)
+        clientsock, clientAddress = server.accept()
+        newthread = ClientThread(clientAddress, clientsock)
+        newthread.start()
+        print(threading.active_count())
     except:
         break
+server.close()
 
 
-conn.close()
-
-
-
-#parametri za slanje za DataBAse Analitics
+# parametri za slanje za DataBAse Analitics
 def Analitics(option, parametar):
     result = list()
     if option == 1:
         result = consumptionForCity(parametar)
         return result
-    elif option == 2 :
+    elif option == 2:
         result = consumptionForBrojilo(int(parametar))
         return result
 
-#prijem podataka od Datbase Analitics
+
+# prijem podataka od Datbase Analitics
 PORT2 = 50011
 s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s2.bind((HOST, PORT2))
+s2.bind((LOCALHOST, PORT2))
 s2.listen(1)
 conn, addr = s2.accept()
 
 while True:
     try:
-        #prima
+        # prima
         data_encoded = conn.recv(4096)
         data_string = data_encoded.decode(encoding="utf-8")
         data_variable = json.loads(data_string)
         print('Data received from client')
         print(data_variable)
-        result = Analitics(int(data_variable["opt"]),data_variable["parametar"])
-        #slanje
+        result = Analitics(int(data_variable["opt"]), data_variable["parametar"])
+        # slanje
         if len(result) == 0:
-            if int(data_variable["opt"])==1:
-                result=currentCities()
+            if int(data_variable["opt"]) == 1:
+                result = currentCities()
                 data_string2 = json.dumps(result)
                 conn.sendall(data_string2.encode(encoding="utf-8"))
                 time.sleep(1)
                 print('Data Sent to Server')
             else:
-                result=currentIds()
+                result = currentIds()
                 data_string2 = json.dumps(result)
                 conn.sendall(data_string2.encode(encoding="utf-8"))
                 time.sleep(1)
@@ -193,6 +219,5 @@ while True:
     except:
         print("Greska")
         break
-
 
 conn.close()

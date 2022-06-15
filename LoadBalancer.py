@@ -7,9 +7,10 @@ buffer = list(range(10))
 buffer.clear()
 # parametri za slanje podataka
 HOST = 'localhost'
-PORT2 = 50008
+PORT2 = 50056
 s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s2.connect((HOST, PORT2))
+
 
 # fja za slanje podataka na Worker
 def sendtoWorker():
@@ -20,8 +21,6 @@ def sendtoWorker():
         print('Data Sent to Server')
     except:
         print("Error LoadBalancer")
-
-
 
 
 # parametri za prijem podataka
@@ -53,7 +52,6 @@ while True:
     except:
         break
 
-#za manuelni upis podatak
-
+# za manuelni upis podatak
 s2.close()
 conn.close()

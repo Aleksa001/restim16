@@ -7,7 +7,7 @@ countOfInstance = random.randint(9, 10)
 threads = []
 condition = threading.Condition
 HOST = "localhost"
-PORT = 50008
+PORT = 50056
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((HOST, PORT))
@@ -19,7 +19,7 @@ print("Connected by", addr)
 
 
 def Worker():
-    PORT2 = 50008
+    PORT2 = 50009
     s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s2.connect((HOST, PORT2))
 
@@ -30,13 +30,13 @@ def Worker():
                     condition.wait(1000)
 
             data_encoded = conn.recv(4096)
-            s2.sendall(data_encoded)
-            print('Data Sent to Server by', threading.current_thread().name)
 
+            s2.sendall(data_encoded)
+
+            print('Data Sent to Server by', threading.current_thread().name)
+            condition.wait(60)
         except:
             break
-
-    conn.close()
 
 
 def ThreadFactory():
@@ -71,8 +71,3 @@ ThreadFactory()
 time.sleep(1)
 for j in range(len(threads)):
     print(threads[j].name, threads[j].is_alive())
-
-
-
-
-
