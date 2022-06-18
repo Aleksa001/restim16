@@ -20,32 +20,45 @@ mycur = db.cursor()
 
 
 def insertInDatabase(id, value, month):
+    if((type(id) != int ) or (type(value) != float)):
+        raise  Exception("Tipovi za id i value nisu validni!!!")
     try:
         mycur.execute(
             "INSERT INTO Potrosnjabrojila (IDBrojila, Potrosnja, Mesec) VALUES (%d, %f, '%s')" % (id, value, month))
         db.commit()
+        return True
     except:
         print("Error in operation!!!")
         db.rollback()
+        return False
 
 
 def deleteFromDatabase(id):
+    if ((type(id) != int)):
+        raise Exception("Tip za id nije validan!!!")
     try:
         mycur.execute("DELETE from Potrosnjabrojila where IDBrojila=%d" %(id))
         db.commit()
+        return True
     except:
         print("Error in operation!!!")
         db.rollback()
+        return False
 
 
 def updateInDatabase(id, value, month):
+    if ((type(id) != int) or (type(value) != float)):
+        raise Exception("Tipovi za id i value nisu validni!!!")
     try:
         mycur.execute(
             "Update Potrosnjabrojila set Potrosnja= %f where IDBrojila= %d && Mesec='%s'" % (value, id, month))
         db.commit()
+        return True
     except:
         print("Error in operation!!!")
         db.rollback()
+        return False
+
 
 
 def readAllInDatabase():
@@ -76,6 +89,8 @@ def consumptionForCity(city):
 
 # Drugi zahtev, potrosnja po mesecima za konkretno brojilo
 def consumptionForBrojilo(id):
+    if ((type(id) != int)):
+        raise Exception("Tip za id nije validan!!!")
     bufferAnalitics = list()
 
     mycur.execute("select Potrosnjabrojila.Mesec, Potrosnjabrojila.Potrosnja AS Potrosnja" +
