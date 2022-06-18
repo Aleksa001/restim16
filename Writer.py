@@ -2,13 +2,18 @@ from Podatak import Electricity
 import socket, json, time, os.path
 
 #Parametri
+
 HOST = 'localhost'
 PORT = 50007
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 
-
 def ReadFromFile(nameoffile):
+    if  os.path.exists(fileName):
+        print("Izabrani fajl postoji!!!")
+    else:
+        print("Izabrani fajl ne postoji!!!")
+        return -1
     with open(nameoffile) as f:
         contents = f.readlines()
         count = len(contents)
@@ -33,6 +38,7 @@ def ReadFromFile(nameoffile):
                 break
 
             i = i + 3
+    return 1
 
 
 
@@ -68,13 +74,11 @@ def ManualInput():
 
     s.close()
 
+
+
 if __name__ == "__main__":
-    while True:
-        print("Unesite ime fajla: ")
-        fileName = input()
-        if os.path.exists(fileName):
-            break
-        print("Izabrani fajl ne postoji!!!")
+    print("Unesite ime fajla: ")
+    fileName = input()
     ReadFromFile('%s'%(fileName))
     ManualInput()
     print("Writer zavrsio posao!!!")

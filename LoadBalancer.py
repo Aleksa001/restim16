@@ -12,7 +12,7 @@ s2.connect((HOST, PORT2))
 
 
 # fja za slanje podataka na Worker
-def sendtoWorker():
+def SendToWorker():
     try:
         data_string2 = json.dumps(buffer)
         s2.send(data_string2.encode(encoding="utf-8"))
@@ -33,7 +33,7 @@ conn, addr = s.accept()
 print('Connected by', addr)
 
 
-def SendToWorkers():
+def RecieveFromWriter():
     while True:
         if len(buffer) == 10:
             buffer.clear()
@@ -47,15 +47,15 @@ def SendToWorkers():
             print(len(buffer))
             # Uslov poziva fje za slanje na Worker
             if len(buffer) == 10:
-                sendtoWorker()
+                SendToWorker()
         except:
             break
     #salje preostale podatke workerima
-    sendtoWorker()
+    SendToWorker()
     s2.close()
     conn.close()
 
 
 if __name__ == "__main__":
-    SendToWorkers()
+    RecieveFromWriter()
     print("LoadBalancer zavrsio posao!!!")

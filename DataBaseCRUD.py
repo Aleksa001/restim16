@@ -1,5 +1,4 @@
 import threading
-
 import mysql.connector
 import socket, json
 import time
@@ -32,7 +31,7 @@ def insertInDatabase(id, value, month):
 
 def deleteFromDatabase(id):
     try:
-        mycur.execute("DELETE from Potrosnjabrojila where IDBrojila=%d" % (id))
+        mycur.execute("DELETE from Potrosnjabrojila where IDBrojila=%d" %(id))
         db.commit()
     except:
         print("Error in operation!!!")
@@ -121,6 +120,13 @@ def currentIds():
 
 
 # parametri za prijem podataka
+LOCALHOST = "127.0.0.1"
+PORT = 50010
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind((LOCALHOST, PORT))
+
+
 
 class ClientThread(threading.Thread):
     def __init__(self, clientAddress, clientsocket):
@@ -129,7 +135,7 @@ class ClientThread(threading.Thread):
         print("New connection added: ", clientAddress)
 
     def run(self):
-        print("Connection from : ", clientAddress)
+        #print("Connection from : ", clientAddress)
         # self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
         msg = ''
         while True:
@@ -146,30 +152,29 @@ class ClientThread(threading.Thread):
                 id = int(i["personal_id"])
                 value = float(i["monthly_value"])
                 insertInDatabase(id, value, "%s" % (i["month"]))
-        clientsock.close()
+        #clientsock.close()
 
-        print("Client at ", clientAddress, " disconnected...")
+        #print("Client at ", clientAddress, " disconnected...")
 
-
-LOCALHOST = "127.0.0.1"
-PORT = 50009
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((LOCALHOST, PORT))
-print("Server started")
-print("Waiting for client request..")
-while True:
-    try:
-        server.listen(1)
-        clientsock, clientAddress = server.accept()
-        newthread = ClientThread(clientAddress, clientsock)
-        newthread.start()
-        print(threading.active_count())
-        if(threading.active_count() == 9) or (threading.active_count() == 10):
+def recieveFromWorker():
+    print("Server started")
+    print("Waiting for client request..")
+    while True:
+        try:
+            server.listen(1)
+            clientsock, clientAddress = server.accept()
+            newthread = ClientThread(clientAddress, clientsock)
+            newthread.start()
+            print(threading.active_count())
+            if(threading.active_count() == 9) or (threading.active_count() == 10):
+                clientsock.close()
+                break
+        except:
             break
-    except:
-        break
-server.close()
+    server.close()
+
+
+
 
 
 # parametri za slanje za DataBAse Analitics
@@ -184,42 +189,48 @@ def Analitics(option, parametar):
 
 
 # prijem podataka od Datbase Analitics
-PORT2 = 50023
-s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s2.bind((LOCALHOST, PORT2))
-s2.listen(1)
-conn, addr = s2.accept()
-print("Wait connection with Database Analitics...")
-while True:
-    try:
-        # prima
-        data_encoded = conn.recv(4096)
-        data_string = data_encoded.decode(encoding="utf-8")
-        data_variable = json.loads(data_string)
-        print('Data received from client')
-        print(data_variable)
-        result = Analitics(int(data_variable["opt"]), data_variable["parametar"])
-        # slanje
-        if len(result) == 0:
-            if int(data_variable["opt"]) == 1:
-                result = currentCities()
-                data_string2 = json.dumps(result)
-                conn.sendall(data_string2.encode(encoding="utf-8"))
-                time.sleep(1)
-                print('Data Sent to Server')
-            else:
-                result = currentIds()
-                data_string2 = json.dumps(result)
-                conn.sendall(data_string2.encode(encoding="utf-8"))
-                time.sleep(1)
-                print('Data Sent to Server')
-        else:
-            data_string2 = json.dumps(result)
-            conn.sendall(data_string2.encode(encoding="utf-8"))
-            time.sleep(1)
-            print('Data Sent to Server')
-    except:
-        print("Greska")
-        break
 
-conn.close()
+def ComunicationForAnalitics():
+    PORT2 = 50023
+    s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s2.bind((LOCALHOST, PORT2))
+    s2.listen(1)
+    conn, addr = s2.accept()
+    print("Wait connection with Database Analitics...")
+    while True:
+        try:
+            # prima
+            data_encoded = conn.recv(4096)
+            data_string = data_encoded.decode(encoding="utf-8")
+            data_variable = json.loads(data_string)
+            print('Data received from client')
+            print(data_variable)
+            result = Analitics(int(data_variable["opt"]), data_variable["parametar"])
+            # slanje
+            if len(result) == 0:
+                if int(data_variable["opt"]) == 1:
+                    result = currentCities()
+                    data_string2 = json.dumps(result)
+                    conn.sendall(data_string2.encode(encoding="utf-8"))
+                    time.sleep(1)
+                    print('Data Sent to Server')
+                else:
+                    result = currentIds()
+                    data_string2 = json.dumps(result)
+                    conn.sendall(data_string2.encode(encoding="utf-8"))
+                    time.sleep(1)
+                    print('Data Sent to Server')
+            else:
+                data_string2 = json.dumps(result)
+                conn.sendall(data_string2.encode(encoding="utf-8"))
+                time.sleep(1)
+                print('Data Sent to Server')
+        except:
+            print("Greska")
+            break
+
+    conn.close()
+
+if __name__ == '__main__':
+    recieveFromWorker()
+    ComunicationForAnalitics()

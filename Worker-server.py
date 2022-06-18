@@ -5,6 +5,7 @@ import time
 
 countOfInstance = random.randint(9, 10)
 threads = []
+names = dict()
 condition = threading.Condition
 HOST = "localhost"
 PORT = 50008
@@ -19,7 +20,7 @@ print("Connected by", addr)
 
 
 def Worker():
-    PORT2 = 50009
+    PORT2 = 50010
     s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s2.connect((HOST, PORT2))
 
@@ -44,9 +45,9 @@ def ThreadFactory():
     while counter < len(threads):
         threads[counter].start()
         counter = counter + 1
+    return True
 
 
-names = dict()
 
 
 def StopThreads():
@@ -61,13 +62,17 @@ def StopThreads():
             break
 
 
-print("List of WORKERS you can choose from")
-for i in range(countOfInstance):
-    thread = threading.Thread(target=Worker)
-    threads.append(thread)
-    print(threads[i].name)
-StopThreads()
-ThreadFactory()
-time.sleep(1)
-for j in range(len(threads)):
-    print(threads[j].name, threads[j].is_alive())
+def Start():
+    print("List of WORKERS you can choose from")
+    for i in range(countOfInstance):
+        thread = threading.Thread(target=Worker)
+        threads.append(thread)
+        print(threads[i].name)
+    StopThreads()
+    ThreadFactory()
+    time.sleep(1)
+    for j in range(len(threads)):
+        print(threads[j].name, threads[j].is_alive())
+
+if __name__ == "__main__":
+    Start()
