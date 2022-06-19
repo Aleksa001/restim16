@@ -17,7 +17,14 @@ class TestDataBaseCRUD(unittest.TestCase):
         self.assertRaises(Exception, DataBaseCRUD.updateInDatabase("prvi", "drugi", "treci"))
     def TestConsumptionForBrojilo(self):
         self.assertRaises(Exception,DataBaseCRUD.consumptionForBrojilo("rec"))
-
+    def TestInsertInBrojilo(self):
+        self.assertRaises(Exception,DataBaseCRUD.insertInBrojilo("sadas",213,123,312,231,312))
+        self.assertRaises(DataBaseCRUD.insertInBrojilo(1,"","","",1000,""),False)
+        self.assertRaises(DataBaseCRUD.insertInBrojilo(99,"","","",8000,""),True)
+    def TestDeleteInBrojilo(self):
+        self.assertRaises(Exception,DataBaseCRUD.deleteInBrojilo("dasd"))
+        self.assertAlmostEqual(DataBaseCRUD.deleteInBrojilo(1),True)
+        self.assertAlmostEqual(DataBaseCRUD.deleteInBrojilo(99931),False)
 
 if __name__ == "__main__":
     unittest.main()

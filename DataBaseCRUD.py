@@ -18,7 +18,7 @@ db = mysql.connector.connect(
 )
 mycur = db.cursor()
 
-
+#CRUD operacija za Potrosnjabrojila tabel
 def insertInDatabase(id, value, month):
     if((type(id) != int ) or (type(value) != float)):
         raise  Exception("Tipovi za id i value nisu validni!!!")
@@ -68,6 +68,60 @@ def readAllInDatabase():
         if item is None:
             break
         print(item)
+#operacije za tabelu Brojilo
+def insertInBrojilo(id, imeIPrezime, ulica, broj, postanskiBroj, grad):
+    if((type(id) != int ) or (type(postanskiBroj) != int )):
+        raise Exception("Id i postanski broj moraju biti broj!!!")
+    try:
+        mycur.execute("insert into Brojilo values(%d,'%s','%s','%s',%d,'%s');"%(id, imeIPrezime, ulica, broj, postanskiBroj, grad))
+        db.commit()
+        return True
+    except:
+        print("Error in operation!!!")
+        db.rollback()
+        return False
+def deleteInBrojilo(id):
+    if type(id) != int:
+        raise Exception("Id mora biti broj")
+    try:
+        mycur.execute("DELETE from Brojilo where IDBrojila=%d" %(id))
+        db.commit()
+        return True
+    except:
+        print("Error in operation!!!")
+        db.rollback()
+        return False
+
+def addOrDeleteBrojilo():
+    while True:
+        print("Da li zelite da dodate novo brojilo ili da izbrisete postojece(da/ne):")
+        odgovor = input()
+        if odgovor.lower() == "ne":
+            break
+        print("1.Dodaj")
+        print("2.Obrisi")
+        print("3.Exit")
+        opcija = input()
+        if int(opcija) == 1:
+            id = input("Unesite id:")
+            iip = input("Unesite ime i prezime:")
+            ulica = input("Unesite ime ulice:")
+            broj = input("Unesite broj ulice:")
+            pbroj = input("Unesite postanski broj:")
+            grad = input("Unesite grad:")
+            if insertInBrojilo(int(id), iip, ulica, broj, int(pbroj), grad):
+                print("Novo brojilo uspesno dodato!!!")
+        elif int(opcija) == 2:
+            lista = currentIds()
+            print("Trenutni id-jevi brojila:")
+            for i in lista:
+                print(i)
+            id = input("Unesite id brojila koji zelite da obrisete:")
+            if deleteInBrojilo(int(id)):
+                print("Brojilo %d uspesno obrisano!!!"%(int(id)))
+        else:
+            break
+
 
 
 # Prvi zahtev izvestaja, potrosnja po mesecima za grad
@@ -203,6 +257,7 @@ def Analitics(option, parametar):
         return result
 
 
+
 # prijem podataka od Datbase Analitics
 
 def ComunicationForAnalitics():
@@ -247,5 +302,6 @@ def ComunicationForAnalitics():
     conn.close()
 
 if __name__ == '__main__':
+    addOrDeleteBrojilo()
     recieveFromWorker()
     ComunicationForAnalitics()
