@@ -48,8 +48,6 @@ def ThreadFactory():
     return True
 
 
-
-
 def StopThreads():
     number = 0
     while True:
@@ -60,6 +58,7 @@ def StopThreads():
             number = number + 1
         else:
             break
+        return chosenThread
 
 
 def Start():
@@ -73,6 +72,8 @@ def Start():
     time.sleep(1)
     for j in range(len(threads)):
         print(threads[j].name, threads[j].is_alive())
+    return threads
+
 
 if __name__ == "__main__":
     Start()
